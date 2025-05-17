@@ -38,13 +38,13 @@ class SalesInput(BaseModel):
 # Reusable preprocessing
 def preprocess(df: pd.DataFrame):
     # Auto-handle date column if present
-    if 'date' in df.columns:
-        df['date'] = pd.to_datetime(df['date'])
-        df['year'] = df['date'].dt.year
-        df['month'] = df['date'].dt.month
-        df['day'] = df['date'].dt.day
-        df['weekday'] = df['date'].dt.weekday
-        df.drop(columns=['date'], inplace=True)
+    if 'order_date' in df.columns:
+        df['order_date'] = pd.to_datetime(df['order_date'])
+        df['year'] = df['order_date'].dt.year
+        df['month'] = df['order_date'].dt.month
+        df['day'] = df['order_date'].dt.day
+        df['weekday'] = df['order_date'].dt.weekday
+        df.drop(columns=['order_date'], inplace=True)
     # Handle missing values
     df.fillna({
         'unit_price': 0,
@@ -61,8 +61,7 @@ def preprocess(df: pd.DataFrame):
     # Convert categorical columns to string if not already
 
     cat_cols = ['color', 'size', 'category', 'holiday_type']
-    num_cols = ['unit_price', 'quantity', 'age', 'discount', 'customer_rating',
-                'stock', 'category_id', 'category_avg_price', 'category_total_revenue',
+    num_cols = ['unit_price', 'quantity', 'age', 'discount', 'customer_rating','stock', 'category_id', 'category_avg_price', 'category_total_revenue',
                 'category_popularity', 'year', 'month', 'day', 'weekday']
 
     # Transform
@@ -121,18 +120,22 @@ def predict_batch(data: List[SalesInput]):
         raise HTTPException(status_code=500, detail=str(e))
 
 # Route 4: CSV upload
-@app.post("/upload-csv")
-def upload_csv(file: UploadFile = File(...)):
+from fastapi.responses import FileResponse
+import tempfile
+
+@app.post("/upload-csv-download")
+def upload_csv_download(file: UploadFile = File(...)):
     try:
         content = file.file.read()
         df = pd.read_csv(io.BytesIO(content))
         processed = preprocess(df)
-        prediction = model.predict(processed.values)
-        df['prediction'] = prediction
-        return {
-            "status": "success",
-            "rows": len(df),
-            "predictions": df['prediction'].tolist()
-        }
+        df['prediction'] = model.predict(processed.values)
+
+        # Save to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode='w') as temp:
+            df.to_csv(temp.name, index=False)
+            temp_path = temp.name
+
+        return FileResponse(temp_path, filename="predictions.csv", media_type="text/csv")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
