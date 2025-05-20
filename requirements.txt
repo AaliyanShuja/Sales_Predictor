@@ -2,3 +2,6 @@ fastapi
 uvicorn
 pandas
 lightgbm
+joblib
+scikit-learn
+python-multipart
