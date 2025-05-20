@@ -123,19 +123,17 @@ def predict_batch(data: List[SalesInput]):
 from fastapi.responses import FileResponse
 import tempfile
 
-@app.post("/upload-csv-download")
-def upload_csv_download(file: UploadFile = File(...)):
+@app.post("/upload-csv")
+def upload_csv(file: UploadFile = File(...)):
     try:
         content = file.file.read()
         df = pd.read_csv(io.BytesIO(content))
         processed = preprocess(df)
-        df['prediction'] = model.predict(processed.values)
-
-        # Save to a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode='w') as temp:
-            df.to_csv(temp.name, index=False)
-            temp_path = temp.name
-
-        return FileResponse(temp_path, filename="predictions.csv", media_type="text/csv")
+        prediction = model.predict(processed.values)
+        return {
+            "status": "success",
+            "rows": len(df),
+            "predictions": prediction.tolist()
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

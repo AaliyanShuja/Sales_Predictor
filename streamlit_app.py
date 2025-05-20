@@ -8,6 +8,7 @@ from   PIL import Image
 import base64
 import time
 import requests
+import io
 
 # Page Config
 st.set_page_config(
@@ -196,89 +197,102 @@ st.markdown("""
     <p style="text-align: center;">Upload your data to generate AI-powered sales forecasts</p>
 """, unsafe_allow_html=True)
 
-FASTAPI_URL = "http://127.0.0.1:8000/upload-csv"
+
+# FastAPI endpoint
+FASTAPI_URL = "http://127.0.0.1:8000/upload-csv"  # Change to Railway URL if deployed
 
 st.title("📊 Sales Prediction Dashboard")
 
 uploaded_file = st.file_uploader("📂 Upload CSV", type="csv")
 
 if uploaded_file is not None:
-    df = pd.read_csv(io.StringIO(uploaded_file.getvalue().decode("utf-8")))
-    st.subheader("🔍 Uploaded Data")
-    st.dataframe(df)
+    try:
+        # Read and display uploaded CSV
+        df = pd.read_csv(io.StringIO(uploaded_file.getvalue().decode("utf-8")))
+        st.subheader("🔍 Uploaded Data")
+        st.dataframe(df)
 
-    if st.button("🔮 Predict with FastAPI"):
-        with st.spinner("Sending file to FastAPI..."):
-            response = requests.post(
-                FASTAPI_URL,
-                files={"file": uploaded_file.getvalue()}
-            )
+        # --- Predict using FastAPI ---
+        if st.button("🔮 Predict with FastAPI"):
+            with st.spinner("Sending file to FastAPI..."):
+                response = requests.post(
+                    FASTAPI_URL,
+                    files={"file": uploaded_file.getvalue()}
+                )
 
-        if response.status_code == 200:
-            result = response.json()
-            df["Predicted Revenue"] = result["predictions"]
-            st.success(f"✅ Predicted {len(result['predictions'])} records.")
-            st.dataframe(df)
-        else:
-            st.error("❌ API request failed.")
-            st.json(response.json())
+            if response.status_code == 200:
+                result = response.json()
+                df["Predicted Revenue"] = result["predictions"]
+                st.success(f"✅ Predicted {result['rows']} records.")
+                st.dataframe(df)
+            else:
+                st.error("❌ FastAPI request failed.")
+                try:
+                    st.json(response.json())
+                except:
+                    st.text(response.text)
 
-    if st.button("🔄 Analyze Locally"):
-        with st.spinner('Analyzing data locally...'):
-            time.sleep(2)
-            model = lgb.Booster(model_file="lightgbm_model.txt")
-            model_features = model.feature_name()
+        # --- Analyze Locally ---
+        if st.button("🔄 Analyze Locally"):
+            with st.spinner('Analyzing data locally...'):
+                time.sleep(2)
+                model = lgb.Booster(model_file="lightgbm_model.txt")
+                model_features = model.feature_name()
 
-            for col in model_features:
-                if col not in df.columns:
-                    df[col] = 0
+                for col in model_features:
+                    if col not in df.columns:
+                        df[col] = 0  # Add missing columns as 0
 
-            df["Predicted Revenue"] = model.predict(df[model_features])
-            total_predicted = df["Predicted Revenue"].sum()
-            avg_pred = df["Predicted Revenue"].mean()
-            max_pred = df["Predicted Revenue"].max()
+                df["Predicted Revenue"] = model.predict(df[model_features])
+                total_predicted = df["Predicted Revenue"].sum()
+                avg_pred = df["Predicted Revenue"].mean()
+                max_pred = df["Predicted Revenue"].max()
 
-            st.success("✅ Local Analysis Complete")
+                st.success("✅ Local Analysis Complete")
 
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown(f"""
-                <div class="pulse" style="background: linear-gradient(135deg, #10B981 0%, #34D399 100%); 
-                            padding: 2rem; border-radius: 15px; color: white; text-align: center;">
-                    <h3>Total Predicted Revenue</h3>
-                    <h1 style="margin: 0.5em 0;">${total_predicted:,.2f}</h1>
-                </div>
-                """, unsafe_allow_html=True)
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown(f"""
+                    <div class="pulse" style="background: linear-gradient(135deg, #10B981 0%, #34D399 100%); 
+                                padding: 2rem; border-radius: 15px; color: white; text-align: center;">
+                        <h3>Total Predicted Revenue</h3>
+                        <h1 style="margin: 0.5em 0;">${total_predicted:,.2f}</h1>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-            with col2:
-                st.markdown(f"""
-                <div style="background: #f8fafc; padding: 2rem; border-radius: 15px;">
-                    <h4 style="color: #1e3a8a; margin-top: 0;">Key Insights</h4>
-                    <p>• Predicted from {len(df)} transactions</p>
-                    <p>• Average sale: ${avg_pred:.2f}</p>
-                    <p>• Max predicted: ${max_pred:.2f}</p>
-                </div>
-                """, unsafe_allow_html=True)
+                with col2:
+                    st.markdown(f"""
+                    <div style="background: #f8fafc; padding: 2rem; border-radius: 15px;">
+                        <h4 style="color: #1e3a8a; margin-top: 0;">Key Insights</h4>
+                        <p>• Predicted from {len(df)} transactions</p>
+                        <p>• Average sale: ${avg_pred:.2f}</p>
+                        <p>• Max predicted: ${max_pred:.2f}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-            # Revenue trend
-            if "order_date" in df.columns:
-                st.markdown("### 📈 Revenue Trend Forecast")
-                df["order_date"] = pd.to_datetime(df["order_date"])
-                df = df.sort_values("order_date")
+                # Revenue trend
+                if "order_date" in df.columns:
+                    st.markdown("### 📈 Revenue Trend Forecast")
+                    df["order_date"] = pd.to_datetime(df["order_date"])
+                    df = df.sort_values("order_date")
 
-                fig, ax = plt.subplots(figsize=(10, 5))
-                ax.plot(df["order_date"], df["Predicted Revenue"].cumsum(), 
-                        color='#3B82F6', linewidth=3)
-                ax.fill_between(df["order_date"], df["Predicted Revenue"].cumsum(), 
-                                color='#3B82F6', alpha=0.1)
-                ax.set_xlabel("Date")
-                ax.set_ylabel("Cumulative Revenue ($)")
-                ax.grid(True, alpha=0.3)
-                st.pyplot(fig)
+                    fig, ax = plt.subplots(figsize=(10, 5))
+                    ax.plot(df["order_date"], df["Predicted Revenue"].cumsum(), 
+                            color='#3B82F6', linewidth=3)
+                    ax.fill_between(df["order_date"], df["Predicted Revenue"].cumsum(), 
+                                    color='#3B82F6', alpha=0.1)
+                    ax.set_xlabel("Date")
+                    ax.set_ylabel("Cumulative Revenue ($)")
+                    ax.grid(True, alpha=0.3)
+                    st.pyplot(fig)
 
-    st.download_button(
-        "⬇️ Download Predictions as CSV",
-        data=df.to_csv(index=False).encode("utf-8"),
-        file_name="predicted_sales.csv",
-        mime="text/csv"
-    )
+        # --- Download Button ---
+        st.download_button(
+            "⬇️ Download Predictions as CSV",
+            data=df.to_csv(index=False).encode("utf-8"),
+            file_name="predicted_sales.csv",
+            mime="text/csv"
+        )
+
+    except Exception as e:
+        st.error(f"❌ Error loading file: {e}")
