@@ -1,0 +1,19 @@
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+
+# Ignore model/data artifacts
+*.pkl
+*.joblib
+
+# Ignore environment files
+.env
+venv/
+.envrc
+
+# macOS & Linux system files
+.DS_Store
+
+# not using render cloud so have to ignore it as well
+# Ignore render cloud files
+.render/
