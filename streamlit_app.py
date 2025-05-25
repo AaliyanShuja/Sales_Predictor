@@ -199,8 +199,7 @@ st.markdown("""
 
 
 # FastAPI endpoint
-FASTAPI_URL = "http://127.0.0.1:8000/upload-csv"  # Change to Railway URL if deployed
-
+FASTAPI_URL = "https://salespredictor-production.up.railway.app/docs" #/default/predict_batch_predict_batch_post  
 st.title("📊 Sales Prediction Dashboard")
 
 uploaded_file = st.file_uploader("📂 Upload CSV", type="csv")
