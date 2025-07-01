@@ -6,4 +6,4 @@ joblib
 scikit-learn
 python-multipart
 matplotlib
-numpy
+numpygit
