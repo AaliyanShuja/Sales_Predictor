@@ -5,15 +5,15 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
-from  plotly.subplots import make_subplots
+from plotly.subplots import make_subplots
 import numpy as np
-from  streamlit.components.v1 import html
-from  PIL import Image
+from streamlit.components.v1 import html
+from PIL import Image
 import base64
 import time
 import requests
 import io
-from   scipy import stats
+from scipy import stats
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -148,7 +148,7 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         justify-content: center;
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
         color: white;
         border-radius: 20px 0 0 20px;
     }
@@ -207,6 +207,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Advanced animated visualization components
+
+
 def create_animated_chart_js():
     return """
     <div id="animated-chart-container" style="width: 100%; height: 400px; position: relative;">
@@ -300,6 +302,7 @@ def create_animated_chart_js():
     </script>
     """
 
+
 def create_3d_animation():
     return """
     <div id="3d-container" style="width: 100%; height: 300px; background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 15px; overflow: hidden;">
@@ -364,6 +367,7 @@ def create_3d_animation():
     </script>
     """
 
+
 def create_particle_animation():
     return """
     <div id="particle-container" style="width: 100%; height: 250px; background: #1a202c; border-radius: 15px; overflow: hidden; position: relative;">
@@ -417,21 +421,23 @@ def create_particle_animation():
     </script>
     """
 
+
 # Sidebar configuration
 with st.sidebar:
     st.markdown("## 🎛️ Dashboard Controls")
-    
+
     # Analysis options
     analysis_type = st.selectbox(
         "Select Analysis Type",
-        ["Revenue Insights", "Feature Correlation", "Trend Analysis", "Performance Metrics"]
+        ["Revenue Insights", "Feature Correlation",
+            "Trend Analysis", "Performance Metrics"]
     )
-    
+
     # Visualization options
     st.markdown("### 📊 Visualization Options")
     show_animations = st.checkbox("Enable Animations", value=True)
     chart_theme = st.selectbox("Chart Theme", ["Default", "Dark", "Colorful"])
-    
+
     # Advanced filters
     st.markdown("### 🔍 Advanced Filters")
     date_range = st.date_input("Date Range", value=[])
@@ -475,17 +481,17 @@ st.markdown("""
 # Three animations section
 if show_animations:
     st.markdown("## 🎨 Interactive Animations")
-    
+
     anim_col1, anim_col2, anim_col3 = st.columns(3)
-    
+
     with anim_col1:
         st.markdown("### 📊 Revenue Flow")
         html(create_animated_chart_js(), height=250)
-    
+
     with anim_col2:
         st.markdown("### 🎲 3D Data Cubes")
         html(create_3d_animation(), height=250)
-    
+
     with anim_col3:
         st.markdown("### ✨ Data Particles")
         html(create_particle_animation(), height=250)
@@ -497,25 +503,27 @@ if uploaded_file is not None:
     try:
         # Load and display data
         df = pd.read_csv(io.StringIO(uploaded_file.getvalue().decode("utf-8")))
-        
+
         # Check for required columns
-        required_columns = ['order_id', 'order_date', 'sku', 'color', 'size', 'unit_price', 
-                           'quantity', 'revenue', 'age', 'discount', 'customer_rating', 
-                           'stock', 'category', 'category_id', 'category_avg_price', 
-                           'category_total_revenue', 'category_popularity', 'holiday_type']
-        
-        missing_columns = [col for col in required_columns if col not in df.columns]
-        
+        required_columns = ['order_id', 'order_date', 'sku', 'color', 'size', 'unit_price',
+                            'quantity', 'revenue', 'age', 'discount', 'customer_rating',
+                            'stock', 'category', 'category_id', 'category_avg_price',
+                            'category_total_revenue', 'category_popularity', 'holiday_type']
+
+        missing_columns = [
+            col for col in required_columns if col not in df.columns]
+
         if missing_columns:
-            st.warning(f"⚠️ The dataset is missing some required columns: {', '.join(missing_columns)}")
-            st.info("For best results, please ensure your dataset contains all these columns: " + 
-                   ", ".join(required_columns))
-        
+            st.warning(
+                f"⚠️ The dataset is missing some required columns: {', '.join(missing_columns)}")
+            st.info("For best results, please ensure your dataset contains all these columns: " +
+                    ", ".join(required_columns))
+
         # Data overview section
         st.markdown("## 📋 Data Overview")
-        
+
         col1, col2, col3, col4 = st.columns(4)
-        
+
         with col1:
             st.markdown(f"""
             <div class="metric-card">
@@ -523,7 +531,7 @@ if uploaded_file is not None:
                 <h1>{len(df):,}</h1>
             </div>
             """, unsafe_allow_html=True)
-        
+
         with col2:
             st.markdown(f"""
             <div class="metric-card" style="background: linear-gradient(135deg, #F59E0B 0%, #F97316 100%);">
@@ -531,7 +539,7 @@ if uploaded_file is not None:
                 <h1>{len(df.columns)}</h1>
             </div>
             """, unsafe_allow_html=True)
-        
+
         with col3:
             numeric_cols = df.select_dtypes(include=[np.number]).columns
             st.markdown(f"""
@@ -540,7 +548,7 @@ if uploaded_file is not None:
                 <h1>{len(numeric_cols)}</h1>
             </div>
             """, unsafe_allow_html=True)
-        
+
         with col4:
             missing_data = df.isnull().sum().sum()
             st.markdown(f"""
@@ -549,55 +557,59 @@ if uploaded_file is not None:
                 <h1>{missing_data}</h1>
             </div>
             """, unsafe_allow_html=True)
-        
+
         # Interactive data exploration
         st.markdown("### 🔍 Interactive Data Exploration")
-        
+
         # Tabs for different analysis types
-        tab1, tab2, tab3, tab4 = st.tabs(["📊 Revenue Analysis", "🔗 Feature Correlation", "📈 Trend Analysis", "🎯 Predictions"])
-        
+        tab1, tab2, tab3, tab4 = st.tabs(
+            ["📊 Revenue Analysis", "🔗 Feature Correlation", "📈 Trend Analysis", "🎯 Predictions"])
+
         with tab1:
-            st.markdown('<div class="dashboard-section">', unsafe_allow_html=True)
-            
+            st.markdown('<div class="dashboard-section">',
+                        unsafe_allow_html=True)
+
             if analysis_type == "Revenue Insights" or analysis_type == "Revenue Analysis":
-                revenue_cols = [col for col in df.columns if 'revenue' in col.lower() or 'sales' in col.lower() or 'amount' in col.lower()]
-                
+                revenue_cols = [col for col in df.columns if 'revenue' in col.lower(
+                ) or 'sales' in col.lower() or 'amount' in col.lower()]
+
                 if revenue_cols:
-                    selected_revenue_col = st.selectbox("Select Revenue Column", revenue_cols)
-                    
+                    selected_revenue_col = st.selectbox(
+                        "Select Revenue Column", revenue_cols)
+
                     # Revenue distribution
-                    fig = px.histogram(df, x=selected_revenue_col, 
-                                     title=f"Revenue Distribution - {selected_revenue_col}",
-                                     color_discrete_sequence=['#3B82F6'])
+                    fig = px.histogram(df, x=selected_revenue_col,
+                                       title=f"Revenue Distribution - {selected_revenue_col}",
+                                       color_discrete_sequence=['#3B82F6'])
                     fig.update_layout(template="plotly_white")
                     st.plotly_chart(fig, use_container_width=True)
-                    
+
                     # 3D Scatter Plot
                     st.markdown("### 3D Revenue Analysis")
                     col1, col2, col3 = st.columns(3)
-                    
+
                     with col1:
                         x_axis = st.selectbox("X-Axis", numeric_cols, index=0)
                     with col2:
                         y_axis = st.selectbox("Y-Axis", numeric_cols, index=1)
                     with col3:
                         z_axis = st.selectbox("Z-Axis", numeric_cols, index=2)
-                    
+
                     fig_3d = px.scatter_3d(df, x=x_axis, y=y_axis, z=z_axis,
-                                          color=selected_revenue_col,
-                                          title=f"3D Revenue Analysis: {x_axis} vs {y_axis} vs {z_axis}",
-                                          color_continuous_scale='Viridis')
+                                           color=selected_revenue_col,
+                                           title=f"3D Revenue Analysis: {x_axis} vs {y_axis} vs {z_axis}",
+                                           color_continuous_scale='Viridis')
                     st.plotly_chart(fig_3d, use_container_width=True)
-                    
+
                     # Top revenue insights
                     col1, col2 = st.columns(2)
-                    
+
                     with col1:
                         st.markdown("#### 💰 Revenue Insights")
                         total_revenue = df[selected_revenue_col].sum()
                         avg_revenue = df[selected_revenue_col].mean()
                         max_revenue = df[selected_revenue_col].max()
-                        
+
                         st.markdown(f"""
                         <div class="insight-card">
                             <h4>Key Metrics</h4>
@@ -607,58 +619,62 @@ if uploaded_file is not None:
                             <p><strong>Revenue Range:</strong> ${df[selected_revenue_col].min():.2f} - ${max_revenue:.2f}</p>
                         </div>
                         """, unsafe_allow_html=True)
-                    
+
                     with col2:
                         # Revenue by category
                         if 'category' in df.columns:
-                            revenue_by_cat = df.groupby('category')[selected_revenue_col].sum().sort_values(ascending=False)
-                            
+                            revenue_by_cat = df.groupby(
+                                'category')[selected_revenue_col].sum().sort_values(ascending=False)
+
                             fig = px.bar(x=revenue_by_cat.index, y=revenue_by_cat.values,
-                                       title=f"Revenue by Category",
-                                       color=revenue_by_cat.values,
-                                       color_continuous_scale='Viridis')
+                                         title=f"Revenue by Category",
+                                         color=revenue_by_cat.values,
+                                         color_continuous_scale='Viridis')
                             st.plotly_chart(fig, use_container_width=True)
-                
+
                 else:
                     st.warning("No revenue columns detected in the dataset.")
-            
+
             st.markdown('</div>', unsafe_allow_html=True)
-        
+
         with tab2:
-            st.markdown('<div class="dashboard-section correlation-matrix">', unsafe_allow_html=True)
-            
+            st.markdown(
+                '<div class="dashboard-section correlation-matrix">', unsafe_allow_html=True)
+
             numeric_cols = df.select_dtypes(include=[np.number]).columns
-            
+
             if len(numeric_cols) > 1:
                 st.markdown("#### 🔗 Feature Correlation Analysis")
-                
+
                 # Correlation matrix
                 corr_data = df[numeric_cols].corr()
-                
-                fig = px.imshow(corr_data, 
-                              title="Feature Correlation Matrix",
-                              color_continuous_scale='RdBu',
-                              aspect="auto")
+
+                fig = px.imshow(corr_data,
+                                title="Feature Correlation Matrix",
+                                color_continuous_scale='RdBu',
+                                aspect="auto")
                 fig.update_layout(template="plotly_white")
                 st.plotly_chart(fig, use_container_width=True)
-                
+
                 # Feature relationships
                 st.markdown("#### 📈 Feature Relationships")
                 col1, col2 = st.columns(2)
-                
+
                 with col1:
-                    feature1 = st.selectbox("Select Feature 1", numeric_cols, key="feat1")
-                
+                    feature1 = st.selectbox(
+                        "Select Feature 1", numeric_cols, key="feat1")
+
                 with col2:
-                    feature2 = st.selectbox("Select Feature 2", numeric_cols, key="feat2")
-                
+                    feature2 = st.selectbox(
+                        "Select Feature 2", numeric_cols, key="feat2")
+
                 if feature1 != feature2:
                     fig = px.scatter(df, x=feature1, y=feature2,
-                                   title=f"Relationship: {feature1} vs {feature2}",
-                                   trendline="ols",
-                                   color_discrete_sequence=['#10B981'])
+                                     title=f"Relationship: {feature1} vs {feature2}",
+                                     trendline="ols",
+                                     color_discrete_sequence=['#10B981'])
                     st.plotly_chart(fig, use_container_width=True)
-                    
+
                     # Calculate correlation coefficient
                     correlation = df[feature1].corr(df[feature2])
                     st.markdown(f"""
@@ -670,74 +686,86 @@ if uploaded_file is not None:
                         <p><strong>Direction:</strong> {'Positive' if correlation > 0 else 'Negative'}</p>
                     </div>
                     """, unsafe_allow_html=True)
-            
+
             st.markdown('</div>', unsafe_allow_html=True)
-        
+
         with tab3:
-            st.markdown('<div class="dashboard-section">', unsafe_allow_html=True)
-            
+            st.markdown('<div class="dashboard-section">',
+                        unsafe_allow_html=True)
+
             # Time series analysis
             if 'order_date' in df.columns:
                 st.markdown("#### 📈 Time Series Trend Analysis")
-                
+
                 try:
                     df['order_date'] = pd.to_datetime(df['order_date'])
-                    
+
                     if 'revenue' in df.columns:
                         # Time series plot
                         df_sorted = df.sort_values('order_date')
-                        
+
                         fig = px.line(df_sorted, x='order_date', y='revenue',
-                                    title="Revenue Trend Over Time",
-                                    color_discrete_sequence=['#3B82F6'])
+                                      title="Revenue Trend Over Time",
+                                      color_discrete_sequence=['#3B82F6'])
                         fig.update_layout(template="plotly_white")
                         st.plotly_chart(fig, use_container_width=True)
-                        
+
                         # Trend analysis
-                        monthly_revenue = df_sorted.groupby(df_sorted['order_date'].dt.to_period('M'))['revenue'].sum()
-                        
+                        monthly_revenue = df_sorted.groupby(
+                            df_sorted['order_date'].dt.to_period('M'))['revenue'].sum()
+
                         fig = px.bar(x=monthly_revenue.index.astype(str), y=monthly_revenue.values,
-                                   title="Monthly Revenue Trend",
-                                   color=monthly_revenue.values,
-                                   color_continuous_scale='Viridis')
+                                     title="Monthly Revenue Trend",
+                                     color=monthly_revenue.values,
+                                     color_continuous_scale='Viridis')
                         st.plotly_chart(fig, use_container_width=True)
-                        
+
                         # Interactive time series decomposition
                         st.markdown("#### 🕰️ Time Series Decomposition")
-                        
+
                         if st.button("Analyze Time Series Components"):
                             from statsmodels.tsa.seasonal import seasonal_decompose
-                            
+
                             # Resample to daily data
-                            daily_revenue = df_sorted.set_index('order_date')['revenue'].resample('D').sum()
-                            
+                            daily_revenue = df_sorted.set_index(
+                                'order_date')['revenue'].resample('D').sum()
+
                             # Fill any missing values
-                            daily_revenue = daily_revenue.fillna(daily_revenue.rolling(7, min_periods=1).mean())
-                            
+                            daily_revenue = daily_revenue.fillna(
+                                daily_revenue.rolling(7, min_periods=1).mean())
+
                             # Decompose the time series
-                            result = seasonal_decompose(daily_revenue, model='additive', period=30)
-                            
+                            result = seasonal_decompose(
+                                daily_revenue, model='additive', period=30)
+
                             # Plot decomposition
-                            fig = make_subplots(rows=4, cols=1, shared_xaxes=True)
-                            
-                            fig.add_trace(go.Scatter(x=daily_revenue.index, y=daily_revenue, name='Observed'), row=1, col=1)
-                            fig.add_trace(go.Scatter(x=result.trend.index, y=result.trend, name='Trend'), row=2, col=1)
-                            fig.add_trace(go.Scatter(x=result.seasonal.index, y=result.seasonal, name='Seasonal'), row=3, col=1)
-                            fig.add_trace(go.Scatter(x=result.resid.index, y=result.resid, name='Residual'), row=4, col=1)
-                            
-                            fig.update_layout(height=800, title_text="Time Series Decomposition")
+                            fig = make_subplots(
+                                rows=4, cols=1, shared_xaxes=True)
+
+                            fig.add_trace(go.Scatter(
+                                x=daily_revenue.index, y=daily_revenue, name='Observed'), row=1, col=1)
+                            fig.add_trace(go.Scatter(
+                                x=result.trend.index, y=result.trend, name='Trend'), row=2, col=1)
+                            fig.add_trace(go.Scatter(
+                                x=result.seasonal.index, y=result.seasonal, name='Seasonal'), row=3, col=1)
+                            fig.add_trace(go.Scatter(
+                                x=result.resid.index, y=result.resid, name='Residual'), row=4, col=1)
+
+                            fig.update_layout(
+                                height=800, title_text="Time Series Decomposition")
                             st.plotly_chart(fig, use_container_width=True)
-                
+
                 except Exception as e:
                     st.error(f"Error processing date column: {e}")
-            
+
             else:
                 st.info("No date columns detected for trend analysis.")
-            
+
             st.markdown('</div>', unsafe_allow_html=True)
-        
+
         with tab4:
-            st.markdown('<div class="dashboard-section">', unsafe_allow_html=True)
+            st.markdown('<div class="dashboard-section">',
+                        unsafe_allow_html=True)
             st.markdown("#### 🎯 AI‑Powered Predictions")
 
             if st.button("🔄 Generate Predictions", key="local_pred"):
@@ -747,39 +775,42 @@ if uploaded_file is not None:
                         if 'revenue' in df.columns:
                             # Create some simulated predictions
                             np.random.seed(42)
-                            df["Predicted_Revenue"] = df['revenue'] * (1 + np.random.normal(0, 0.1, len(df)))
-                            df["Next_Month_Revenue"] = df['revenue'] * (1 + np.random.normal(0.05, 0.15, len(df)))
-                            
+                            df["Predicted_Revenue"] = df['revenue'] * \
+                                (1 + np.random.normal(0, 0.1, len(df)))
+                            df["Next_Month_Revenue"] = df['revenue'] * \
+                                (1 + np.random.normal(0.05, 0.15, len(df)))
+
                             st.success("✅ Predictions generated successfully!")
-                            
+
                             # Show prediction results
                             st.markdown("### 📊 Prediction Results")
-                            
+
                             col1, col2 = st.columns(2)
-                            
+
                             with col1:
                                 st.markdown("#### Actual vs Predicted Revenue")
                                 fig = px.scatter(df, x='revenue', y='Predicted_Revenue',
-                                               trendline="ols",
-                                               title="Actual vs Predicted Revenue",
-                                               labels={'revenue': 'Actual Revenue', 'Predicted_Revenue': 'Predicted Revenue'})
+                                                 trendline="ols",
+                                                 title="Actual vs Predicted Revenue",
+                                                 labels={'revenue': 'Actual Revenue', 'Predicted_Revenue': 'Predicted Revenue'})
                                 st.plotly_chart(fig, use_container_width=True)
-                            
+
                             with col2:
                                 st.markdown("#### Next Month Revenue Forecast")
                                 fig = px.histogram(df, x='Next_Month_Revenue',
-                                                 title="Distribution of Next Month Revenue Predictions",
-                                                 nbins=30)
+                                                   title="Distribution of Next Month Revenue Predictions",
+                                                   nbins=30)
                                 st.plotly_chart(fig, use_container_width=True)
-                            
+
                             # Show top predictions
                             st.markdown("### 🏆 Top Predictions")
-                            top_predictions = df.nlargest(10, 'Next_Month_Revenue')[['order_id', 'category', 'revenue', 'Next_Month_Revenue']]
+                            top_predictions = df.nlargest(10, 'Next_Month_Revenue')[
+                                ['order_id', 'category', 'revenue', 'Next_Month_Revenue']]
                             st.dataframe(top_predictions.style.format({
                                 'revenue': '${:,.2f}',
                                 'Next_Month_Revenue': '${:,.2f}'
                             }))
-                            
+
                             # Download predictions
                             csv = df.to_csv(index=False).encode('utf-8')
                             st.download_button(
@@ -789,7 +820,8 @@ if uploaded_file is not None:
                                 mime='text/csv'
                             )
                         else:
-                            st.error("Revenue column not found - cannot generate predictions")
+                            st.error(
+                                "Revenue column not found - cannot generate predictions")
                     except Exception as e:
                         st.error(f"Prediction failed: {e}")
             else:
@@ -803,8 +835,8 @@ if uploaded_file is not None:
                     category_popularity, holiday_type</p>
                 </div>
                 """, unsafe_allow_html=True)
-            
+
             st.markdown('</div>', unsafe_allow_html=True)
-    
+
     except Exception as e:
         st.error(f"❌ Error loading file: {e}")

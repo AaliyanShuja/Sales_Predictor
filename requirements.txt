@@ -1,9 +1,11 @@
-fastapi
-uvicorn
+streamlit
 pandas
 lightgbm
-joblib
-scikit-learn
-python-multipart
 matplotlib
-numpygit
+seaborn
+plotly
+numpy
+Pillow
+scipy
+requests
+streamlit-lottie
