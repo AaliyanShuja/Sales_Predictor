@@ -9,3 +9,4 @@ Pillow
 scipy
 requests
 streamlit-lottie
+statsmodels
