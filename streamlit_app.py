@@ -78,7 +78,7 @@ st.markdown("""
     }
     
     .insight-card {
-        background: white;
+        background: black;
         border-radius: 15px;
         padding: 1.5rem;
         box-shadow: 0 8px 32px rgba(0,0,0,0.1);
@@ -122,9 +122,9 @@ st.markdown("""
     }
     
     .dashboard-section {
-        background: #f8fafc;
+        background: transparent;
         border-radius: 15px;
-        padding: 2rem;
+        padding: 0rem;
         margin: 1rem 0;
         animation: slideInRight 0.8s ease-out;
     }
@@ -188,7 +188,7 @@ st.markdown("""
     }
     
     .feature-showcase {
-        background: white;
+        background: black;
         border-radius: 15px;
         padding: 1.5rem;
         box-shadow: 0 4px 20px rgba(0,0,0,0.1);
